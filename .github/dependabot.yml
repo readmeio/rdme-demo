@@ -1,0 +1,13 @@
+# This file was not in the GitHub repository during the demo,
+# but we strongly recommend adding a file like this to any GitHub repository
+# that uses external dependencies to ensure that your code
+# remains secure and that your dependencies stay up-to-date.
+# Learn more: https://docs.github.com/code-security/dependabot/working-with-dependabot/keeping-your-actions-up-to-date-with-dependabot
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    reviewers:
+      - kanadgupta
