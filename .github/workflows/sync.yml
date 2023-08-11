@@ -11,10 +11,25 @@ jobs:
       - name: Checkout this repo
         uses: actions/checkout@v3
 
-      # Run GitHub Action to sync OpenAPI file at [path-to-file.json]
-      - name: GitHub Action
-        # We recommend specifying a fixed version, i.e. @v8
-        # Docs: https://docs.github.com/actions/using-workflows/workflow-syntax-for-github-actions#example-using-versioned-actions
+      - name: Run `openapi:validate` on file with refs (take 1)
+        uses: readmeio/rdme@v8
+        continue-on-error: true
+        with:
+          rdme: openapi:validate __tests__/__fixtures__/ref-oas/petstore.json
+
+      - name: Run `openapi:validate` on file with refs (take 2)
+        uses: readmeio/rdme@v8
+        continue-on-error: true
+        with:
+          rdme: openapi:validate __tests__/__fixtures__/ref-oas/petstore.json --workingDirectory ${{ github.workspace }}
+
+      - name: Run `openapi:validate` on file with relative refs (take 1)
+        uses: readmeio/rdme@v8
+        continue-on-error: true
+        with:
+          rdme: openapi:validate __tests__/__fixtures__/relative-ref-oas/petstore.json --workingDirectory __tests__/__fixtures__/relative-ref-oas
+
+      - name: Run `openapi:validate` on file with relative refs (take 2)
         uses: readmeio/rdme@v8
         with:
-          rdme: validate "petstore.json"
+          rdme: openapi:validate __tests__/__fixtures__/relative-ref-oas/petstore.json --workingDirectory ${{ github.workspace }}/__tests__/__fixtures__/relative-ref-oas
