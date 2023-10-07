@@ -2,7 +2,7 @@
 
 [![Sync OpenAPI definition to ReadMe](https://github.com/readmeio/rdme-demo/actions/workflows/sync.yml/badge.svg)](https://github.com/readmeio/rdme-demo/actions/workflows/sync.yml)
 
-[![](https://d3vv6lp55qjaqc.cloudfront.net/items/1M3C3j0I0s0j3T362344/Untitled-2.png)](https://readme.com)
+[![](https://raw.githubusercontent.com/readmeio/.github/main/oss-header.png)](https://readme.com)
 
 This repo contains a minimal example of a GitHub Actions workflow that syncs an OpenAPI definition from GitHub to [ReadMe](https://readme.com). It's powered by [the `rdme` GitHub Action](https://github.com/marketplace/actions/rdme-sync-to-readme). You can view the resulting reference docs [here](https://rdme-demo.readme.io).
 
