@@ -17,6 +17,6 @@ jobs:
       - name: GitHub Action
         # We recommend specifying a fixed version, i.e. @v8
         # Docs: https://docs.github.com/actions/using-workflows/workflow-syntax-for-github-actions#example-using-versioned-actions
-        uses: readmeio/rdme@v8
+        uses: readmeio/rdme@v9
         with:
           rdme: openapi petstore.json --key=${{ secrets.README_API_KEY }} --id=${{ secrets.README_API_DEFINITION_ID }}
