@@ -47,4 +47,4 @@ jobs:
       - name: Skip due to unexpected migration state
         if: ${{ steps.refactored.outputs.migrated != 'successful' && steps.refactored.outputs.status == 'enabled' }}
         run: |
-          echo "Project is in an unexpected migration state (${{ steps.refactored.outputs.migrated }}). Skipping `rdme` workflow."
+          echo "::warning::Project is in an unexpected migration state (${{ steps.refactored.outputs.migrated }}). Skipping `rdme` workflow. Please contact us (support@readme.io) if you keep running into this issue."
