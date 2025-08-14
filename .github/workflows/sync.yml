@@ -41,7 +41,7 @@ jobs:
         if: ${{ steps.refactored.outputs.migrated == 'successful' && steps.refactored.outputs.status == 'enabled' }}
         uses: readmeio/rdme@v10
         with:
-          rdme: openapi upload petstore.json --key=${{ secrets.README_API_KEY }}
+          rdme: openapi upload petstore.json --key=${{ secrets.README_API_KEY }} --legacy-id=${{ secrets.README_API_DEFINITION_ID }}
 
       # If project is in an unexpected migration state, skip the rdme workflow
       - name: Skip due to unexpected migration state
