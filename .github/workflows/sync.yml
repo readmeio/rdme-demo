@@ -13,10 +13,38 @@ jobs:
       - name: Checkout this repo
         uses: actions/checkout@v4
 
-      # Run GitHub Action to sync OpenAPI file at [path-to-file.json]
-      - name: GitHub Action
+      # Fetches the refactored data from the ReadMe API's "Get project metadata" endpoint
+      # https://docs.readme.com/main/reference/getproject-1
+      - name: Grab Refactored data
+        id: refactored
+        run: |
+          refactored=$(curl https://api.readme.com/v2/projects/me --header 'Authorization: Bearer ${{ secrets.README_API_KEY }}' | jq -c '.data.refactored')
+          migrated=$(echo $refactored | jq -r '.migrated')
+          status=$(echo $refactored | jq -r '.status')
+          echo "Refactored data: $refactored"
+          echo "Migrated: $migrated"
+          echo "Status: $status"
+          echo migrated=$migrated >> $GITHUB_OUTPUT
+          echo status=$status >> $GITHUB_OUTPUT
+
+      # If project is not yet migrated, run legacy v9 action
+      - name: Run rdme@9
         # We recommend specifying a fixed version, i.e. @v8
         # Docs: https://docs.github.com/actions/using-workflows/workflow-syntax-for-github-actions#example-using-versioned-actions
+        if: ${{ steps.refactored.outputs.status == 'disabled' }}
         uses: readmeio/rdme@v9
         with:
           rdme: openapi petstore.json --key=${{ secrets.README_API_KEY }} --id=${{ secrets.README_API_DEFINITION_ID }}
+
+      # If project is successfully migrated, run v10 action
+      - name: Run rdme@10
+        if: ${{ steps.refactored.outputs.migrated == 'successful' && steps.refactored.outputs.status == 'enabled' }}
+        uses: readmeio/rdme@v10
+        with:
+          rdme: openapi upload petstore.json --key=${{ secrets.README_API_KEY }} --legacy-id=${{ secrets.README_API_DEFINITION_ID }}
+
+      # If project is in an unexpected migration state, skip the rdme workflow
+      - name: Skip due to unexpected migration state
+        if: ${{ steps.refactored.outputs.migrated != 'successful' && steps.refactored.outputs.status == 'enabled' }}
+        run: |
+          echo "::warning::Project is in an unexpected migration state (${{ steps.refactored.outputs.migrated }}). Skipping `rdme` workflow. Please contact us (support@readme.io) if you keep running into this issue."
