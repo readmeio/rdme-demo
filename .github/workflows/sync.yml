@@ -10,29 +10,38 @@ jobs:
       - name: Checkout this repo
         uses: actions/checkout@v4
 
-      - name: Grab Refactored status
-        id: refactored_status
+      # Fetches the refactored data from the ReadMe API's "Get project metadata" endpoint
+      # https://docs.readme.com/main/reference/getproject-1
+      - name: Grab Refactored data
+        id: refactored
         run: |
-          status=$(curl https://api.readme.com/v2/projects/me --header 'Authorization: Bearer ${{ secrets.README_API_KEY }}' | jq -r '.data.refactored.status')
-          echo result=$status >> $GITHUB_OUTPUT
+          refactored=$(curl https://api.readme.com/v2/projects/me --header 'Authorization: Bearer ${{ secrets.README_API_KEY }}') | jq -c '.data.refactored')
+          echo migrated=$(echo $refactored | jq -r '.migrated') >> $GITHUB_OUTPUT
+          echo status=$(echo $refactored | jq -r '.status') >> $GITHUB_OUTPUT
 
-      - name: Print Refactored status
-        run: echo ${{ steps.refactored_status.outputs.result }}
+      - name: Print Refactored data
+        run: |
+          echo ${{ steps.refactored.outputs.migrated }}
+          echo ${{ steps.refactored.outputs.status }}
 
-      # Run GitHub Action to sync OpenAPI file at [path-to-file.json]
+      # If project is not yet migrated, run legacy v9 action
       - name: GitHub Action
         # We recommend specifying a fixed version, i.e. @v8
         # Docs: https://docs.github.com/actions/using-workflows/workflow-syntax-for-github-actions#example-using-versioned-actions
-        if: ${{ steps.refactored_status.outputs.result == 'disabled' }}
+        if: ${{ steps.refactored.outputs.status == 'disabled' }}
         uses: readmeio/rdme@v9
         with:
           rdme: openapi petstore.json --key=${{ secrets.README_API_KEY }} --id=${{ secrets.README_API_DEFINITION_ID }}
 
-      # Run GitHub Action to sync OpenAPI file at [path-to-file.json]
+      # If project is successfully migrated, run v10 action
       - name: GitHub Action
-        # We recommend specifying a fixed version, i.e. @v8
-        # Docs: https://docs.github.com/actions/using-workflows/workflow-syntax-for-github-actions#example-using-versioned-actions
-        if: ${{ steps.refactored_status.outputs.result == 'enabled' }}
+        if: ${{ steps.refactored.outputs.migrated == 'successful' && steps.refactored.outputs.status == 'enabled' }}
         uses: readmeio/rdme@v10
         with:
           rdme: openapi upload petstore.json --key=${{ secrets.README_API_KEY }}
+
+      # If project is in an unexpected migration state, skip the rdme workflow
+      - name: GitHub Action
+        if: ${{ steps.refactored.outputs.migrated != 'successful' && steps.refactored.outputs.status == 'enabled' }}
+        run: |
+          echo "Project is in an unexpected migration state (${{ steps.refactored.outputs.migrated }}). Skipping `rdme` workflow."
