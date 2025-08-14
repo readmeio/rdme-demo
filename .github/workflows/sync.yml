@@ -16,13 +16,13 @@ jobs:
         id: refactored
         run: |
           refactored=$(curl https://api.readme.com/v2/projects/me --header 'Authorization: Bearer ${{ secrets.README_API_KEY }}' | jq -c '.data.refactored')
-          echo migrated=$(echo $refactored | jq -r '.migrated') >> $GITHUB_OUTPUT
-          echo status=$(echo $refactored | jq -r '.status') >> $GITHUB_OUTPUT
-
-      - name: Print Refactored data
-        run: |
-          echo ${{ steps.refactored.outputs.migrated }}
-          echo ${{ steps.refactored.outputs.status }}
+          migrated=$(echo $refactored | jq -r '.migrated')
+          status=$(echo $refactored | jq -r '.status')
+          echo "Refactored data: $refactored"
+          echo "Migrated: $migrated"
+          echo "Status: $status"
+          echo migrated=$migrated >> $GITHUB_OUTPUT
+          echo status=$status >> $GITHUB_OUTPUT
 
       # If project is not yet migrated, run legacy v9 action
       - name: GitHub Action
