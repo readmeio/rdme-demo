@@ -13,10 +13,29 @@ jobs:
       - name: Checkout this repo
         uses: actions/checkout@v4
 
+      - name: Grab Refactored status
+        id: refactored_status
+        run: |
+          status=$(curl https://api.readme.com/v2/projects/me --header 'Authorization: Bearer ${{ secrets.README_API_KEY }}' | jq -r '.data.refactored.status')
+          echo result=$status >> $GITHUB_OUTPUT
+
+      - name: Print Refactored status
+        run: echo ${{ steps.refactored_status.outputs.result }}
+
       # Run GitHub Action to sync OpenAPI file at [path-to-file.json]
       - name: GitHub Action
         # We recommend specifying a fixed version, i.e. @v8
         # Docs: https://docs.github.com/actions/using-workflows/workflow-syntax-for-github-actions#example-using-versioned-actions
+        if: ${{ steps.refactored_status.outputs.result == 'disabled' }}
         uses: readmeio/rdme@v9
         with:
           rdme: openapi petstore.json --key=${{ secrets.README_API_KEY }} --id=${{ secrets.README_API_DEFINITION_ID }}
+
+      # Run GitHub Action to sync OpenAPI file at [path-to-file.json]
+      - name: GitHub Action
+        # We recommend specifying a fixed version, i.e. @v8
+        # Docs: https://docs.github.com/actions/using-workflows/workflow-syntax-for-github-actions#example-using-versioned-actions
+        if: ${{ steps.refactored_status.outputs.result == 'enabled' }}
+        uses: readmeio/rdme@v10
+        with:
+          rdme: openapi upload petstore.json --key=${{ secrets.README_API_KEY }}
