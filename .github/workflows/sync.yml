@@ -15,7 +15,7 @@ jobs:
       - name: Grab Refactored data
         id: refactored
         run: |
-          refactored=$(curl https://api.readme.com/v2/projects/me --header 'Authorization: Bearer ${{ secrets.README_API_KEY }}') | jq -c '.data.refactored')
+          refactored=$(curl https://api.readme.com/v2/projects/me --header 'Authorization: Bearer ${{ secrets.README_API_KEY }}' | jq -c '.data.refactored')
           echo migrated=$(echo $refactored | jq -r '.migrated') >> $GITHUB_OUTPUT
           echo status=$(echo $refactored | jq -r '.status') >> $GITHUB_OUTPUT
 
