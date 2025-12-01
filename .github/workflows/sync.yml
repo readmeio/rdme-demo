@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout this repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       # Fetches the refactored data from the ReadMe API's "Get project metadata" endpoint
       # https://docs.readme.com/main/reference/getproject-1
